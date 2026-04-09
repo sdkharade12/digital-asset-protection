@@ -1,0 +1,325 @@
+[
+  {
+    "id": 1,
+    "url": "https://www.youtube.com/shorts/52dyc6OmsvQ",
+    "video_title": "video bubble",
+    "verdict": "ORIGINAL CONTENT",
+    "triggered_by": null,
+    "video_duration": 15,
+    "scanned_at": "2026-04-09T13:16:48.196705Z",
+    "clips": [
+      {
+        "sample_number": 1,
+        "timestamp_start": 2.5,
+        "timestamp_end": 12.5,
+        "verdict": "ERROR",
+        "matched_asset": null,
+        "matched_sha256": null,
+        "registration_timestamp": null,
+        "detection_layer": null,
+        "detection_reason": "Download failed",
+        "confidence": 0,
+        "layer_scores": {}
+      }
+    ],
+    "matched_asset": null,
+    "matched_registration": null
+  },
+  {
+    "id": 2,
+    "url": "https://www.youtube.com/shorts/52dyc6OmsvQ",
+    "video_title": "video bubble",
+    "verdict": "ORIGINAL CONTENT",
+    "triggered_by": null,
+    "video_duration": 15,
+    "scanned_at": "2026-04-09T13:30:38.217049Z",
+    "clips": [
+      {
+        "sample_number": 1,
+        "timestamp_start": 2.5,
+        "timestamp_end": 12.5,
+        "verdict": "ORIGINAL CONTENT",
+        "matched_asset": null,
+        "matched_sha256": null,
+        "registration_timestamp": null,
+        "detection_layer": null,
+        "detection_reason": "No significant match found",
+        "confidence": 0,
+        "layer_scores": {
+          "L1_distance": "122",
+          "L2a_coverage": 0.0,
+          "L2a_position": -1,
+          "L2b_suspect_coverage": 0.0,
+          "L2b_original_coverage": 0.0,
+          "L3_orb_ratio": null
+        }
+      }
+    ],
+    "matched_asset": null,
+    "matched_registration": null
+  },
+  {
+    "id": 3,
+    "url": "https://www.youtube.com/shorts/52dyc6OmsvQ",
+    "video_title": "video bubble",
+    "verdict": "ORIGINAL CONTENT",
+    "triggered_by": null,
+    "video_duration": 15,
+    "scanned_at": "2026-04-09T13:32:19.827518Z",
+    "clips": [
+      {
+        "sample_number": 1,
+        "timestamp_start": 2.5,
+        "timestamp_end": 12.5,
+        "verdict": "ORIGINAL CONTENT",
+        "matched_asset": null,
+        "matched_sha256": null,
+        "registration_timestamp": null,
+        "detection_layer": null,
+        "detection_reason": "No significant match found",
+        "confidence": 0,
+        "layer_scores": {
+          "L1_distance": "122",
+          "L2a_coverage": 0.0,
+          "L2a_position": -1,
+          "L2b_suspect_coverage": 0.0,
+          "L2b_original_coverage": 0.0,
+          "L3_orb_ratio": null
+        }
+      }
+    ],
+    "matched_asset": null,
+    "matched_registration": null
+  },
+  {
+    "id": 4,
+    "url": "https://www.youtube.com/shorts/52dyc6OmsvQ",
+    "video_title": "video bubble",
+    "verdict": "ORIGINAL CONTENT",
+    "triggered_by": null,
+    "video_duration": 15,
+    "scanned_at": "2026-04-09T13:41:12.683842Z",
+    "clips": [
+      {
+        "sample_number": 1,
+        "timestamp_start": 2.5,
+        "timestamp_end": 12.5,
+        "verdict": "ORIGINAL CONTENT",
+        "matched_asset": null,
+        "matched_sha256": null,
+        "registration_timestamp": null,
+        "detection_layer": null,
+        "detection_reason": "No significant match found",
+        "confidence": 0,
+        "layer_scores": {
+          "L1_distance": 122,
+          "L2a_coverage": 0.0,
+          "L2a_position": -1,
+          "L2b_suspect_coverage": 0.0,
+          "L2b_original_coverage": 0.0,
+          "L3_orb_ratio": null
+        }
+      }
+    ],
+    "matched_asset": null,
+    "matched_registration": null
+  },
+  {
+    "id": 5,
+    "url": "https://www.youtube.com/shorts/52dyc6OmsvQ",
+    "video_title": "video bubble",
+    "verdict": "ORIGINAL CONTENT",
+    "triggered_by": null,
+    "video_duration": 15,
+    "scanned_at": "2026-04-09T13:43:08.906548Z",
+    "clips": [
+      {
+        "sample_number": 1,
+        "timestamp_start": 2.5,
+        "timestamp_end": 12.5,
+        "verdict": "ORIGINAL CONTENT",
+        "matched_asset": null,
+        "matched_sha256": null,
+        "registration_timestamp": null,
+        "detection_layer": null,
+        "detection_reason": "No significant match found",
+        "confidence": 0,
+        "layer_scores": {
+          "L1_distance": 122,
+          "L2a_coverage": 0.0,
+          "L2a_position": -1,
+          "L2b_suspect_coverage": 0.0,
+          "L2b_original_coverage": 0.0,
+          "L3_orb_ratio": null
+        }
+      }
+    ],
+    "matched_asset": null,
+    "matched_registration": null
+  },
+  {
+    "id": 6,
+    "url": "https://www.youtube.com/shorts/52dyc6OmsvQ",
+    "video_title": "video bubble",
+    "verdict": "PIRACY DETECTED",
+    "triggered_by": "Full Scan",
+    "video_duration": 15,
+    "scanned_at": "2026-04-09T13:51:18.726812Z",
+    "clips": [
+      {
+        "sample_number": "Full Scan",
+        "timestamp_start": 0,
+        "timestamp_end": 15,
+        "verdict": "PIRACY DETECTED",
+        "matched_asset": "video_bubble.mp4",
+        "matched_sha256": "8165375d2102cc0cb0f683dc936af8f9b3bdf91e490d15208580d1eb6571537e",
+        "registration_timestamp": "2026-04-09T13:51:05.742564Z",
+        "detection_layer": "L1",
+        "detection_reason": "Near-identical copy (hash distance=0)",
+        "confidence": 100,
+        "layer_scores": {
+          "L1_distance": 0,
+          "L2a_coverage": 100.0,
+          "L2a_position": 0,
+          "L2b_suspect_coverage": 100.0,
+          "L2b_original_coverage": 100.0,
+          "L3_orb_ratio": null
+        }
+      }
+    ],
+    "matched_asset": null,
+    "matched_registration": null
+  },
+  {
+    "id": 7,
+    "url": "https://www.youtube.com/shorts/52dyc6OmsvQ",
+    "video_title": "video bubble",
+    "verdict": "PIRACY DETECTED",
+    "triggered_by": "Full Scan",
+    "video_duration": 15,
+    "scanned_at": "2026-04-09T14:02:25.985703Z",
+    "clips": [
+      {
+        "sample_number": "Full Scan",
+        "timestamp_start": 0,
+        "timestamp_end": 15,
+        "verdict": "PIRACY DETECTED",
+        "matched_asset": "video1_og.mp4",
+        "matched_sha256": "b13b2f8f745e6d5dfb5d38ddbd796e65e05135f0b13e2bcb5726bfc36761acd9",
+        "registration_timestamp": "2026-04-09T14:02:16.365585Z",
+        "detection_layer": "L1",
+        "detection_reason": "Near-identical copy (hash distance=18)",
+        "confidence": 46,
+        "layer_scores": {
+          "L1_distance": 18,
+          "L2a_coverage": 66.7,
+          "L2a_position": 0,
+          "L2b_suspect_coverage": 66.7,
+          "L2b_original_coverage": 66.7,
+          "L3_orb_ratio": null
+        }
+      }
+    ],
+    "matched_asset": null,
+    "matched_registration": null
+  },
+  {
+    "id": 8,
+    "url": "https://www.youtube.com/shorts/52dyc6OmsvQ",
+    "video_title": "video bubble",
+    "verdict": "PIRACY DETECTED",
+    "triggered_by": "Full Scan",
+    "video_duration": 15,
+    "scanned_at": "2026-04-09T14:03:37.568138Z",
+    "clips": [
+      {
+        "sample_number": "Full Scan",
+        "timestamp_start": 0,
+        "timestamp_end": 15,
+        "verdict": "PIRACY DETECTED",
+        "matched_asset": "video1_og.mp4",
+        "matched_sha256": "b13b2f8f745e6d5dfb5d38ddbd796e65e05135f0b13e2bcb5726bfc36761acd9",
+        "registration_timestamp": "2026-04-09T14:02:16.365585Z",
+        "detection_layer": "L1",
+        "detection_reason": "Near-identical copy (hash distance=18)",
+        "confidence": 46,
+        "layer_scores": {
+          "L1_distance": 18,
+          "L2a_coverage": 66.7,
+          "L2a_position": 0,
+          "L2b_suspect_coverage": 66.7,
+          "L2b_original_coverage": 66.7,
+          "L3_orb_ratio": null
+        }
+      }
+    ],
+    "matched_asset": null,
+    "matched_registration": null
+  },
+  {
+    "id": 9,
+    "url": "https://www.youtube.com/shorts/52dyc6OmsvQ",
+    "video_title": "video bubble",
+    "verdict": "PIRACY DETECTED",
+    "triggered_by": "Full Scan",
+    "video_duration": 15,
+    "scanned_at": "2026-04-09T14:04:47.425368Z",
+    "clips": [
+      {
+        "sample_number": "Full Scan",
+        "timestamp_start": 0,
+        "timestamp_end": 15,
+        "verdict": "PIRACY DETECTED",
+        "matched_asset": "video_bubble.mp4",
+        "matched_sha256": "8165375d2102cc0cb0f683dc936af8f9b3bdf91e490d15208580d1eb6571537e",
+        "registration_timestamp": "2026-04-09T14:04:40.765087Z",
+        "detection_layer": "L1",
+        "detection_reason": "Near-identical copy (hash distance=0)",
+        "confidence": 100,
+        "layer_scores": {
+          "L1_distance": 0,
+          "L2a_coverage": 100.0,
+          "L2a_position": 0,
+          "L2b_suspect_coverage": 100.0,
+          "L2b_original_coverage": 100.0,
+          "L3_orb_ratio": null
+        }
+      }
+    ],
+    "matched_asset": null,
+    "matched_registration": null
+  },
+  {
+    "id": 10,
+    "url": "https://www.youtube.com/shorts/52dyc6OmsvQ",
+    "video_title": "video bubble",
+    "verdict": "ORIGINAL CONTENT",
+    "triggered_by": null,
+    "video_duration": 15,
+    "scanned_at": "2026-04-09T14:05:22.116971Z",
+    "clips": [
+      {
+        "sample_number": "Full Scan",
+        "timestamp_start": 0,
+        "timestamp_end": 15,
+        "verdict": "ORIGINAL CONTENT",
+        "matched_asset": null,
+        "matched_sha256": null,
+        "registration_timestamp": null,
+        "detection_layer": null,
+        "detection_reason": "No significant match found",
+        "confidence": 0,
+        "layer_scores": {
+          "L1_distance": 124,
+          "L2a_coverage": 0.0,
+          "L2a_position": 0,
+          "L2b_suspect_coverage": 0.0,
+          "L2b_original_coverage": 0.0,
+          "L3_orb_ratio": null
+        }
+      }
+    ],
+    "matched_asset": null,
+    "matched_registration": null
+  }
+]
