@@ -1,0 +1,52 @@
+Instagram Scraper Fix - What Changed and Why It Works
+======================================================
+
+Problem observed
+----------------
+The spider was downloading:
+1) One video post as an image (play-button thumbnail),
+2) One photo in cropped/low quality instead of full resolution.
+
+Root cause
+----------
+The old extraction flow depended too much on OpenGraph tags (`og:image`, `og:video`).
+On Instagram, those tags often point to preview assets (thumbnails/cropped variants),
+not always the original media URL.
+
+Changes made in `scrapy_learn/spiders/quotes_spider.py`
+-------------------------------------------------------
+1) Added URL decoding helper:
+   - `_decode_ig_url(raw_url)`
+   - Converts escaped Instagram strings like `\\/` and `\\u0026` to valid URLs.
+
+2) Added dedicated video extractor:
+   - `_extract_best_video_url(response)`
+   - Searches page JSON/text for real `.mp4` links first.
+   - Falls back to `"video_url"` if needed.
+   - Ensures actual video URL is selected (not a poster image).
+
+3) Added dedicated image extractor:
+   - `_extract_best_image_url(response)`
+   - Reads image candidates that include width/height and selects the largest one.
+   - This avoids tiny/cropped preview images.
+   - Fallback order:
+     a) largest structured image candidate,
+     b) `display_url`,
+     c) `og:image`,
+     d) `article img`.
+
+4) Updated media selection flow in `parse_video_page`:
+   - Try video first (if found -> save as video),
+   - If no video, extract the best full-resolution image.
+
+Why it worked
+-------------
+The spider now uses media URLs embedded in Instagram page data instead of relying on
+preview metadata. That makes type detection correct (video stays video) and improves
+image quality selection (largest available image instead of thumbnail/cropped variant).
+
+Result after fix
+----------------
+Crawler output matched expected post types:
+- 3 videos downloaded to `videos/`
+- 1 image downloaded to `images/`

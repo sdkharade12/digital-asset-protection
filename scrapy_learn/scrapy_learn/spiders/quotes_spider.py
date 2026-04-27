@@ -1,4 +1,5 @@
 import scrapy
+import os
 import urllib.parse
 import urllib.request
 import re
@@ -7,6 +8,12 @@ from scrapy_playwright.page import PageMethod
 
 class InstagramSpider(scrapy.Spider):
     name = "instagram"
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Initialize our custom tracking stats
+        self.pirated_count = 0
+        self.clean_count = 0
+        self.pirated_files = []
 
     custom_headers = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
@@ -36,8 +43,39 @@ class InstagramSpider(scrapy.Spider):
     def _extract_best_image_url(self, response):
         text = response.text
 
-        srcset_candidates = []
+        # PRIORITY 1: Look for display_resources in the embedded JSON.
+        # These usually contain the uncropped original aspect ratio images.
+        resources = re.findall(
+            r'"src":"([^"]+)","config_width":(\d+),"config_height":(\d+)',
+            text,
+        )
+        if resources:
+            # Pick the resource with the largest area (width * height)
+            best = max(resources, key=lambda r: int(r[1]) * int(r[2]))
+            return self._decode_ig_url(best[0])
 
+        # PRIORITY 2: Look for versioned candidates in the embedded JSON.
+        versioned_candidates = re.findall(
+            r'"url":"([^"]+)","width":(\d+),"height":(\d+)',
+            text,
+        )
+        if versioned_candidates:
+            # Filter out tiny thumbnails, pick the largest available
+            large_candidates = [
+                c for c in versioned_candidates if int(c[1]) >= 700 or int(c[2]) >= 700
+            ]
+            pool = large_candidates if large_candidates else versioned_candidates
+            best_versioned = max(pool, key=lambda c: int(c[1]) * int(c[2]))
+            return self._decode_ig_url(best_versioned[0])
+
+        # PRIORITY 3: Fallback to the display_url in the JSON.
+        display_url = re.search(r'"display_url":"([^"]+)"', text)
+        if display_url:
+            return self._decode_ig_url(display_url.group(1))
+
+        # PRIORITY 4: Fallback to the HTML srcset.
+        # (Moved to the bottom because these are often cropped for UI layouts)
+        srcset_candidates = []
         for srcset in response.css("article img::attr(srcset)").getall():
             for entry in srcset.split(","):
                 part = entry.strip()
@@ -56,37 +94,10 @@ class InstagramSpider(scrapy.Spider):
                 srcset_candidates.append((width, candidate_url))
 
         if srcset_candidates:
-            # Pick the largest image from the post's own media srcset.
             best_srcset = max(srcset_candidates, key=lambda x: x[0])
             return self._decode_ig_url(best_srcset[1])
 
-        versioned_candidates = re.findall(
-            r'"url":"([^"]+)","width":(\d+),"height":(\d+)',
-            text,
-        )
-        if versioned_candidates:
-            # Prefer large post-media candidates over small avatar/preview images.
-            large_candidates = [
-                c for c in versioned_candidates if int(c[1]) >= 700 or int(c[2]) >= 700
-            ]
-            pool = large_candidates if large_candidates else versioned_candidates
-            best_versioned = max(pool, key=lambda c: int(c[1]) * int(c[2]))
-            return self._decode_ig_url(best_versioned[0])
-
-        # Instagram often exposes multiple image sizes in display_resources;
-        # pick the largest one to avoid cropped/low-res previews.
-        resources = re.findall(
-            r'"src":"([^"]+)","config_width":(\d+),"config_height":(\d+)',
-            text,
-        )
-        if resources:
-            best = max(resources, key=lambda r: int(r[1]) * int(r[2]))
-            return self._decode_ig_url(best[0])
-
-        display_url = re.search(r'"display_url":"([^"]+)"', text)
-        if display_url:
-            return self._decode_ig_url(display_url.group(1))
-
+        # PRIORITY 5: Final fallbacks (Meta tags and plain image tags)
         meta_img = response.css('meta[property="og:image"]::attr(content)').get()
         if meta_img:
             return meta_img
@@ -98,7 +109,7 @@ class InstagramSpider(scrapy.Spider):
         return None
 
     async def start(self):
-        url = "https://www.instagram.com/kharadesarthak/"
+        url = "https://www.instagram.com/suuu.yash/"
         yield scrapy.Request(
             url,
             headers=self.custom_headers,
@@ -173,7 +184,35 @@ class InstagramSpider(scrapy.Spider):
             with urllib.request.urlopen(req) as media_response, open(path, "wb") as f:
                 f.write(media_response.read())
             
-            # This logs either "Saved VIDEO..." or "Saved IMAGE..."
             self.logger.info(f"Saved {folder_name[:-1].upper()} successfully: {filename}")
+            
+            # --- NEW CODE: Yield the dictionary (Item) to the pipeline ---
+            yield {
+                'file_path': str(path),
+                'filename': filename,
+                'media_type': 'video' if is_video else 'image'
+            }
+            
         except Exception as e:
             self.logger.error(f"Failed to download {filename}: {e}")
+    
+    def closed(self, reason):
+        # This function runs automatically right before Scrapy shuts down
+        banner = "\n\n" + "="*70 + "\n"
+        banner += " 🏁 DIGITAL ASSET PROTECTION - SCAN COMPLETE 🏁\n"
+        banner += "="*70 + "\n"
+        banner += f" Total Videos Scanned : {self.pirated_count + self.clean_count}\n"
+        banner += f" ✅ Clean Videos       : {self.clean_count}\n"
+        banner += f" 🚨 Pirated Videos    : {self.pirated_count}\n"
+        
+        if self.pirated_count > 0:
+            banner += "-"*70 + "\n"
+            banner += " PIRATED FILES DETECTED:\n"
+            for file in self.pirated_files:
+                banner += f"  ❌ {file}\n"
+            banner += f"\n 📄 Full details saved to: {os.path.join(os.path.abspath('.'), '..', '..', 'piracy_report.txt')}\n"
+        
+        banner += "="*70 + "\n"
+        
+        # Print it as a WARNING so it shows up in red/yellow in the terminal
+        self.logger.warning(banner)
