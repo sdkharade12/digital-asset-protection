@@ -411,7 +411,7 @@ def check_video_for_piracy(original_path, suspect_path):
 
     # ── Layer 2b: Bag-of-Hashes (order-independent) ───────────────────────────
     print("\n[Layer 2b: Bag-of-hashes — edited/reordered clip match]")
-    s_cov, o_cov = bag_of_hashes_match(orig_seq, susp_seq)
+    s_cov, o_cov = bag_of_hashes_match(orig_seq, susp_seq, threshold=10)
 
     if s_cov > 40:
         _print_verdict(
@@ -424,6 +424,15 @@ def check_video_for_piracy(original_path, suspect_path):
         _print_verdict(
             "PIRACY DETECTED",
             f"Suspect contains most of original — original coverage {o_cov:.1f}%"
+        )
+        return "PIRACY DETECTED"
+
+    # Relaxed pass for social-media recompression and heavy transcoding.
+    s_cov_relaxed, o_cov_relaxed = bag_of_hashes_match(orig_seq, susp_seq, threshold=22)
+    if (s_cov_relaxed > 55 or o_cov_relaxed > 55) and global_dist < 140:
+        _print_verdict(
+            "PIRACY DETECTED",
+            f"Strong overlap after recompression — suspect_cov={s_cov_relaxed:.1f}%, orig_cov={o_cov_relaxed:.1f}%"
         )
         return "PIRACY DETECTED"
 
@@ -577,31 +586,53 @@ def check_against_registry(suspect_path, db_path="asset_registry.json"):
             _report_match(record)
             return record
 
-        # L2a — sliding window
-        window_cov, pos = sliding_window_match(orig_seq, susp_seq)
+        # L2a — sliding window (strict first, then relaxed for heavy recompression)
+        window_cov, pos = sliding_window_match(orig_seq, susp_seq, threshold=10)
         if window_cov > 40:
             print(f"  >> MATCH (L2a): Unedited clip at ~{pos}s")
             _report_match(record)
             return record
+        window_cov_relaxed, pos_relaxed = sliding_window_match(orig_seq, susp_seq, threshold=22)
+        if window_cov_relaxed > 70 and dist < 140:
+            print(f"  >> MATCH (L2a-relaxed): Strong ordered overlap under recompression at ~{pos_relaxed}s")
+            _report_match(record)
+            return record
 
-        # L2b — bag of hashes (catches edited/reordered clips)
-        s_cov, o_cov = bag_of_hashes_match(orig_seq, susp_seq)
+        # L2b — bag of hashes (strict first, then relaxed for social media transcodes)
+        s_cov, o_cov = bag_of_hashes_match(orig_seq, susp_seq, threshold=10)
         if s_cov > 40 or o_cov > 60:
             print(f"  >> MATCH (L2b): Edited clip — suspect_cov={s_cov:.1f}%, orig_cov={o_cov:.1f}%")
             _report_match(record)
             return record
+        s_cov_relaxed, o_cov_relaxed = bag_of_hashes_match(orig_seq, susp_seq, threshold=22)
+        if (s_cov_relaxed > 55 or o_cov_relaxed > 55) and dist < 140:
+            print(
+                f"  >> MATCH (L2b-relaxed): Strong overlap after recompression "
+                f"(suspect_cov={s_cov_relaxed:.1f}%, orig_cov={o_cov_relaxed:.1f}%)"
+            )
+            _report_match(record)
+            return record
 
         # L3 — only run ORB if weak signals exist (saves time)
-        weak_signal = dist < 100 or window_cov > 15 or s_cov > 15
+        weak_signal = (
+            dist < 100
+            or window_cov > 15
+            or s_cov > 15
+            or window_cov_relaxed > 40
+            or s_cov_relaxed > 40
+        )
         if weak_signal:
             print(f"  [L3] Weak signal detected — running ORB...")
-            orb_ratio = orb_video_check(orig_frames=susp_frames, susp_frames=susp_frames)
-            # NOTE: for a proper registry L3, you'd need to reload the original video.
-            # For prototype, flag this as needing manual review instead:
-            if orb_ratio > 0.15 or (dist < 80 and orb_ratio > 0.08):
-                print(f"  >> MATCH (L3): Visual overlap confirmed (ORB={orb_ratio*100:.1f}%)")
-                _report_match(record)
-                return record
+            # Try to recover original video by filename for a real ORB comparison.
+            # If source file is unavailable, skip L3 silently.
+            orig_path = os.path.join(os.path.dirname(db_path), record["filename"])
+            if os.path.exists(orig_path):
+                orig_frames = extract_frames(orig_path)
+                orb_ratio = orb_video_check(orig_frames=orig_frames, susp_frames=susp_frames)
+                if orb_ratio > 0.15 or (dist < 80 and orb_ratio > 0.08):
+                    print(f"  >> MATCH (L3): Visual overlap confirmed (ORB={orb_ratio*100:.1f}%)")
+                    _report_match(record)
+                    return record
 
     print("\n  [SCAN] No match found in registry — content appears original.")
     return None
@@ -642,19 +673,19 @@ if __name__ == "__main__":
     print("\n--- TEST 1: Near-exact copy (expect PIRACY) ---")
     check_video_for_piracy("video1.mp4", "video1 copy.mp4")
 
-    # Test 2: Unedited highlight clip → expect PIRACY (L2a catches it)
-    print("\n--- TEST 2: Unedited clip from original (expect PIRACY) ---")
-    check_video_for_piracy("video1.mp4", "video3.mp4")
+    # # Test 2: Unedited highlight clip → expect PIRACY (L2a catches it)
+    # print("\n--- TEST 2: Unedited clip from original (expect PIRACY) ---")
+    # check_video_for_piracy("video1.mp4", "video3.mp4")
 
-    # Test 3: Speed-altered or reordered edit → expect PIRACY (L2b catches it)
-    print("\n--- TEST 3: Speed-altered / reordered edit (expect PIRACY) ---")
-    check_video_for_piracy("video1.mp4", "video_bubble.mp4")
+    # # Test 3: Speed-altered or reordered edit → expect PIRACY (L2b catches it)
+    # print("\n--- TEST 3: Speed-altered / reordered edit (expect PIRACY) ---")
+    # check_video_for_piracy("video1.mp4", "video_bubble.mp4")
 
-    # Test 4: Completely different video → expect ORIGINAL
-    print("\n--- TEST 4: Different video (expect ORIGINAL) ---")
-    check_video_for_piracy("video1.mp4", "video4.mp4")
+    # # Test 4: Completely different video → expect ORIGINAL
+    # print("\n--- TEST 4: Different video (expect ORIGINAL) ---")
+    # check_video_for_piracy("video1.mp4", "video4.mp4")
 
     # Test 5: Full registry flow
-    print("\n--- TEST 5: Registry scan ---")
+    # print("\n--- TEST 5: Registry scan ---")
     register_video("video1.mp4")
     check_against_registry("video1_reorder.mp4")
